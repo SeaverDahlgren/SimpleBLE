@@ -90,9 +90,10 @@ typedef struct {
 
         // Wait for services to be discovered
         // NOTE: This is a bit of a hack but avoids the need of having a dedicated flag.
-        while (self.peripheral.services == nil && self.peripheral.state == CBPeripheralStateConnected) {
+        while (self.peripheral.services == nil) {
             [NSThread sleepForTimeInterval:0.01];
         }
+        NSLog(@"Services discovered");
 
         if (self.peripheral.services == nil) {
             // If services could not be discovered, raise an exception.
@@ -106,7 +107,7 @@ typedef struct {
 
             // Wait for characteristics  to be discovered for up to 1 second.
             // NOTE: This is a bit of a hack but avoids the need of having a dedicated flag.
-            endDate = [NSDate dateWithTimeInterval:1.0 sinceDate:NSDate.now];
+            endDate = [NSDate dateWithTimeInterval:5.0 sinceDate:NSDate.now];
             while (service.characteristics == nil && [NSDate.now compare:endDate] == NSOrderedAscending) {
                 [NSThread sleepForTimeInterval:0.01];
             }
@@ -121,8 +122,8 @@ typedef struct {
             for (CBCharacteristic* characteristic in service.characteristics) {
                 [self.peripheral discoverDescriptorsForCharacteristic:characteristic];
 
-                // Wait for descriptors to be discovered for up to 1 second.
-                endDate = [NSDate dateWithTimeInterval:1.0 sinceDate:NSDate.now];
+                // Wait for descriptors to be discovered for up to 3 second.
+                endDate = [NSDate dateWithTimeInterval:3.0 sinceDate:NSDate.now];
                 while (characteristic.descriptors == nil && [NSDate.now compare:endDate] == NSOrderedAscending) {
                     [NSThread sleepForTimeInterval:0.01];
                 }
@@ -219,8 +220,8 @@ typedef struct {
         [self.peripheral readValueForCharacteristic:characteristic];
     }
 
-    // Wait for the read to complete for up to 1 second.
-    NSDate* endDate = [NSDate dateWithTimeInterval:1.0 sinceDate:NSDate.now];
+    // Wait for the read to complete for up to 3 second.
+    NSDate* endDate = [NSDate dateWithTimeInterval:3.0 sinceDate:NSDate.now];
     BOOL readPending = YES;
     while (readPending && [NSDate.now compare:endDate] == NSOrderedAscending) {
         [NSThread sleepForTimeInterval:0.01];
